@@ -11,7 +11,6 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 
-
 class Equation:
     @staticmethod
     def f(x):
@@ -35,6 +34,7 @@ class StartingPoints:
     def store_node_data(self):
         return NodeData(x_nodes=self.x_nodes, y_nodes=self.y_nodes, x_m=self.x_m, y_m=self.y_m, x_axes=self.x_axes)
 
+
 @dataclass
 class NodeData:
     x_nodes: list
@@ -42,7 +42,6 @@ class NodeData:
     x_m: list
     y_m: list
     x_axes: list
-
 
 
 @dataclass
@@ -59,6 +58,7 @@ class ApproximationData:
     max_abs_node: float
     res_node: list
     mse: float
+
 
 @dataclass
 class InterpolationData:
@@ -77,7 +77,6 @@ class ApproximationPolynom:
 
         self.coeff = None
         self.node_data = node_data
-
 
     def poly_build(self, degree):
         n = degree + 1
@@ -101,7 +100,6 @@ class ApproximationPolynom:
             if abs(pivot) < 1e-12:
                 raise ValueError('Матрица вырождена')
             new_M[col] = new_M[col] / pivot
-
 
             for row in range(m):
                 if row != col:
@@ -237,9 +235,6 @@ class MainWindow(QMainWindow):
         self.main_tabs.addTab(self.interpolation_tab, 'Интерполяция')
 
 
-
-
-
 class ApproximationTab(QWidget):
     def __init__(self):
         super().__init__()
@@ -256,6 +251,7 @@ class ApproximationTab(QWidget):
         for degree in [2, 3, 4, 5]:
             tab = PolynomialTab(node_data, polynom_data[degree], degree)
             self.inner_tabs.addTab(tab, f'P{degree}')
+
 
 class InterpolationTab(QWidget):
     def __init__(self):
@@ -282,7 +278,6 @@ class InterpolationTab(QWidget):
         main_layout.addLayout(bottom_layout)
         bottom_layout.addWidget(self.interpolation_control_panel)
 
-
     def update_interpolation_ui_info(self):
         try:
             a, b, n = self.interpolation_control_panel.get_values()
@@ -293,23 +288,22 @@ class InterpolationTab(QWidget):
             interpolation_data = calculation.store_interpolation_data()
             node_data = calculation.node_data
 
-
-
             self.interpolation_graph.update_graph(node_data, interpolation_data)
             self.interpolation_error_table.update_interpolation_error_table(node_data, interpolation_data)
             self.interpolation_table_info.update_interpolation_table_info(node_data)
+          
         except ValueError as e:
             error = QMessageBox()
             error.setText(f'Ошибка: {str(e)}')
             error.setIcon(QMessageBox.Icon.Critical)
             error.exec()
 
+
 class ApproximationGeneralTab(QWidget):
     def __init__(self, approximation_tab):
         super().__init__()
 
         self.approximation_tab = approximation_tab
-
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -326,7 +320,7 @@ class ApproximationGeneralTab(QWidget):
         lower_layout = QHBoxLayout()
         layout.addLayout(lower_layout)
 
-
+      
         self.matlab_file = MatlabExport()
 
 
@@ -357,10 +351,6 @@ class ApproximationGeneralTab(QWidget):
 
         lower_layout.addWidget(self.approximation_control_panel)
 
-
-
-
-
     def update_approximation_ui_info(self):
         try:
             a, b, n = self.approximation_control_panel.get_values()
@@ -373,8 +363,6 @@ class ApproximationGeneralTab(QWidget):
             polynom_data, best_degree = calculation.approximation_compute_results()
 
 
-
-
             self.node_error_table.update_node_table(node_data, polynom_data)
             self.check_table.update_check_table(node_data, polynom_data)
             self.polynom_table.update_polyno_table(polynom_data)
@@ -382,16 +370,13 @@ class ApproximationGeneralTab(QWidget):
 
             self.approximation_tab.create_inner_tabs(node_data, polynom_data)
 
-
             self.approximation_comparison_graph.update_graph(polynom_data, node_data, best_degree)
-
 
         except ValueError as e:
             error = QMessageBox()
             error.setWindowTitle('Ошибка')
             error.setText(f'Ошибка: {str(e)}')
             error.setIcon(QMessageBox.Icon.Critical)
-
             error.exec()
 
 
@@ -433,16 +418,12 @@ class ControlPanel(QWidget):
         group_layout.addWidget(self.n_entry, 0, 5)
         self.n_entry.setPlaceholderText('Введите n (1 < n < 11)')
 
-
-
-
-
-
     def get_values(self):
         return (
             float(self.a_entry.text()),
             float(self.b_entry.text()),
             int(self.n_entry.text()))
+
 
 class ApproximationControlPanel(ControlPanel):
     def __init__(self):
@@ -626,7 +607,6 @@ class ApproximationCheckTable(TableWidget):
         self.table.setFixedHeight(200)
 
 
-
     def update_check_table(self, node_data, polynom_data):
         self.table.setRowCount(0)
         count = len(node_data.x_m)
@@ -652,8 +632,6 @@ class ApproximationPolynomTable(TableWidget):
 
 
     def update_polyno_table(self, polynom_data):
-
-
         self.table.setRowCount(0)
         
         for i, degree in enumerate([2, 3, 4, 5]):
@@ -678,9 +656,7 @@ class ApproximationBestResultsTable(TableWidget):
 
 
     def update_best_table(self, polynom_data, best_degree):
-
         self.table.setRowCount(0)
-
 
         row = self.table.rowCount()
         self.table.insertRow(row)
@@ -704,6 +680,7 @@ class InterpolationErrorTable(TableWidget):
 
         count = len(node_data.x_m)
         for row in range(count):
+          
             row = self.table.rowCount()
             self.table.insertRow(row)
 
@@ -771,8 +748,6 @@ class GraphWidget(MainGraphWidget):
         self.ax.clear()
         self.ax.plot(node_data.x_axes, [Equation.f(x) for x in node_data.x_axes], label='f(x)', color='#3e0b9c')
         self.ax.scatter(node_data.x_nodes, node_data.y_nodes, color='#3e0b9c')
-
-
 
         self.ax.plot(node_data.x_nodes, polynom_data.y_polynom, label=f'P{polynom_data.degree}')
         self.ax.legend(loc='upper right', fontsize=7)
@@ -939,7 +914,6 @@ grid on;"""
         download.setIcon(QMessageBox.Icon.Information)
 
         download.exec()
-
 
 
 app = QApplication(sys.argv)
